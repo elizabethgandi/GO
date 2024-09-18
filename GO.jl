@@ -5,6 +5,7 @@ function approximation_fct_sinus_cardinal(a::Float64, b::Float64)
 
     min::Float64 = -1.0
     max::Float64 = -1.0
+    borne::Float64 = 0.0
     
     # Cas 1: a > b ------------------------------------------------------------------------------------
     if a > b
@@ -52,7 +53,33 @@ function approximation_fct_sinus_cardinal(a::Float64, b::Float64)
         
         println("POS: a = ", a, " et b = ", b)
 
-        # min, max = approximation(a,b)
+        if (b-a <= 2π)
+            nothing
+        else
+            b = a+2π
+            k = ceil((a-(π/2))/(2π)) 
+
+            (k%2 ==0) ? println("k paire!") : println("k impaire!")
+
+            borne = ((1+2k)π)/2
+            println("b = ", b, "k = ", k, " || borne = ", borne)
+
+            if (a <= borne && b <= borne) || (a <= borne+(3π/2) && b <= borne+(3π/2) && a >= borne+π && b >= borne+π)
+                max = sin(a)/a
+                min = sin(b)/b
+            
+            elseif (a <= borne+π && b <= borne+π && a >= borne && b >= borne)
+                min = sin(a)/a
+                max = sin(b)/b
+
+            else
+                # traitement de l'horreur 
+                # min, max = approximation(a,b)
+                nothing
+            end
+
+             println("min = ", min, " || max = ", max)
+        end
     end
     
     
@@ -66,8 +93,8 @@ end
 function main()
 
     # Affectation des valeurs au bornes x de l'intevalle
-    a::Float64 = -80.0
-    b::Float64 = 0.0
+    a::Float64 = 8.0
+    b::Float64 = 20.0
 
     # 
     borneInf, borneSup = approximation_fct_sinus_cardinal(a,b)
