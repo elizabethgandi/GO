@@ -121,7 +121,7 @@ function approximation_fct_sinus_cardinal(a::Float64, b::Float64)
                 fb = (b == 0) ? 1 : sin(b)/b # compute f(b)
 
                 res_min = (ka%2 == 0) ? fb : sin(extremum_ka)/extremum_ka
-                res_max = (ka%2 == 0) ? sin(extremum_ka)/extremum_ka : fb
+                res_max = (ka%2 == 0) ? ((ka == 0) ? fa : sin(extremum_ka)/extremum_ka) : fb
 
                 return res_min, res_max
             elseif (a <= extremum_ka) && (((extremum_kb <= b) && (ka + 1 == kb)) || (ka + 2 == kb))
@@ -130,8 +130,10 @@ function approximation_fct_sinus_cardinal(a::Float64, b::Float64)
 
                 (ka + 2 == kb) && (kb -= 1; extremum_kb = newton_method((((1+2kb)π)/2), threshold))
 
+                fa = (a == 0) ? 1 : sin(a)/a # compute f(a)
+
                 res_min = (ka%2 == 0) ? sin(extremum_kb)/extremum_kb : sin(extremum_ka)/extremum_ka
-                res_max = (ka%2 == 0) ? sin(extremum_ka)/extremum_ka : sin(extremum_kb)/extremum_kb
+                res_max = (ka%2 == 0) ? ((ka == 0) ? fa : sin(extremum_ka)/extremum_ka) : sin(extremum_kb)/extremum_kb
 
                 return res_min, res_max
 
