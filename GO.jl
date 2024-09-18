@@ -24,10 +24,18 @@ function approximation_fct_sinus_cardinal(a::Float64, b::Float64)
     elseif (0 >= a && 0 <= b)
         max = 1
 
-        #chercher le min
-        # min = chercher_min(a,b)
+        if (b >= 3π/2) || (a <= 3π/2)
+            min = (sin((3π)/2))/((3π)/2)
+        else
 
-        return -2, max # pour l'instant -2 remplace la routine pour chercher la valeur min
+            # Ici b < 3π/2 et a soit negatifs soit vaut 0
+
+            min = -2
+            #chercher le min
+            # min = chercher_min(a,b)
+        end
+
+        return min, max # pour l'instant -2 remplace la routine pour chercher la valeur min
     else
         # Cas 4: a ≤ 0 et b ≤ 0 ------------------------------------------------------------------------------------
         if ( a <=0 && b <= 0)
@@ -39,12 +47,12 @@ function approximation_fct_sinus_cardinal(a::Float64, b::Float64)
         end
         
         # Cas 5: a ≥ 0 et b ≥ 0 ------------------------------------------------------------------------------------
+
+        # → dans ce cas 5 a, b ≠ 0 et strictement pos 
         
         println("POS: a = ", a, " et b = ", b)
 
         # min, max = approximation(a,b)
-    
-
     end
     
     
@@ -58,8 +66,8 @@ end
 function main()
 
     # Affectation des valeurs au bornes x de l'intevalle
-    a::Float64 = -8.0
-    b::Float64 = -6.0
+    a::Float64 = -80.0
+    b::Float64 = 0.0
 
     # 
     borneInf, borneSup = approximation_fct_sinus_cardinal(a,b)
