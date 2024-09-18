@@ -124,6 +124,7 @@ function approximation_fct_sinus_cardinal(a::Float64, b::Float64)
                 res_max = (ka%2 == 0) ? ((ka == 0) ? fa : sin(extremum_ka)/extremum_ka) : fb
 
                 return res_min, res_max
+
             elseif (a <= extremum_ka) && (((extremum_kb <= b) && (ka + 1 == kb)) || (ka + 2 == kb))
 
                 println("(a <= extremum_ka) && (((extremum_kb <= b) && (ka + 1 == kb)) || (ka + 2 == kb))")
