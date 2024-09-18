@@ -56,6 +56,12 @@ function approximation_fct_sinus_cardinal(a::Float64, b::Float64)
 
         if (b-a <= 2π)
             nothing
+        elseif (3π/2 >= a && 3π/2 <= b)
+            min = (sin((3π)/2))/((3π)/2)
+            max = 2 # valeur arbitraire
+            # chercher le max
+            # max = chercher_max(a,b)
+
         else
             b     = a+2π
             k     = ceil((a-(π/2))/(2π)) 
@@ -96,8 +102,8 @@ end
 function main()
 
     # Affectation des valeurs au bornes x de l'intevalle
-    a::Float64 = -15.0
-    b::Float64 = 2.0
+    a::Float64 = 2.0
+    b::Float64 = 17.0
 
     borneInf, borneSup = approximation_fct_sinus_cardinal(a,b)
 
