@@ -1,46 +1,75 @@
 # ========================================== PACKAGES ===============================================================
 using Printf
 
+# sinc(x::Float64)::Float64 = return (x == 0) ? (1) : (sin(x) / x)
+sinc_derive_premiere(x::Float64)::Float64 = return (x == 0) ? (0) : ((x * cos(x) - sin(x)) / (x^2))
+sinc_derive_seconde(x::Float64)::Float64 = return (x == 0) ? (-0.33333333315479) : (((x^2 - 2) * -x * sin(x) - 2 * x^2 * cos(x)) / (x^4))
+
+N(x::Float64)::Float64 = return (x - (sinc_derive_premiere(x) / sinc_derive_seconde(x))) 
+
+function newton_method(x::Float64, threshold::Float64 = 0.0000000000001)::Float64
+    tmp ::Union{Float64, Nothing}   = x-1       # xk-1
+
+    while !(tmp <= x <= tmp + threshold)
+        tmp = x
+        x = N(x)
+    end
+
+    return x
+end
+
 # ========================================== FONCTIONS ==============================================================
 function approximation_fct_sinus_cardinal(a::Float64, b::Float64)
 
-    min::Float64   = -1.0
-    max::Float64   = -1.0
-    borne::Float64 = 0.0
-    
-    # Cas 1: a > b --------------------------------------------------------------------------------------------------
-    if a > b
-        return min, max # -1.0 pour l'instant est une valeur sentinelle pour indiquer impossible 
+    res_min::Float64 = -1.0
+    res_max::Float64 = -1.0
 
-    # Cas 2: a = b --------------------------------------------------------------------------------------------------
+    threshold::Float64 = 0.0000000000001 # accuracy
+    
+    # Cas 1: a > b ------------------------------------------------------------------------------------
+    if a > b
+
+        println("a > b")
+        return res_min, res_max # -1.0 pour l'instant est une valeur sentinelle pour indiquer impossible 
+
+    # Cas 2: a = b ------------------------------------------------------------------------------------
     elseif a==b
         if (a==0) && (b==0)
-            return 1, 1
+            println("a == b == 0")
+            return 1., 1.
         end
+
+        println("a == b != 0")
     
-        min = sin(a)/a
-        max = min
-        return min, max
+        res = (a == 0) ? (1) : (sin(a)/a) # res == min == max é
+        return res, res
         
-    # Cas 3: 0 ∈ [a,b] ----------------------------------------------------------------------------------------------
-    elseif (0 >= a && 0 <= b)
-        max = 1
+    # Cas 3: 0 ∈ [a,b] ------------------------------------------------------------------------------------
+    elseif (a <= 0 <= b)
+        println("a <= 0 <= b")
 
-        if (b >= 3π/2) || (a <= -(3π/2))
-            min = (sin((3π)/2))/((3π)/2)
+        res_max = 1
+
+        # chercher le min
+        
+        min_sinc = newton_method(3π/2, threshold) # lowest point of sinc (first minimum ~ 3π/2 -> use newton method starting at x = 3π/2)
+
+        if min_sinc < abs(a) || min_sinc < b # is a or b further than the first minimum (lowest point of the function)
+
+            println("0 <= y <= b or 0 <= y <= abs(a) | sinc(y) -> lowes point of sinc")
+
+            return sin(min_sinc)/min_sinc, res_max
         else
-            println("En traitement ...")
-            # Ici b < 3π/2 et a soit negatifs soit vaut 0
+            fa = (a == 0) ? 1 : sin(a)/a
+            fb = (b == 0) ? 1 : sin(b)/b
 
-            min = -2
-            #chercher le min
-            # min = chercher_min(a,b)
+            res_min = min(fa, fb)
+            
+            return res_min, res_max
         end
-
-        return min, max # pour l'instant -2 remplace la routine pour chercher la valeur min
     else
-        # Cas 4: a ≤ 0 et b ≤ 0 -------------------------------------------------------------------------------------
-        if ( a <=0 && b <= 0)
+        # Cas 4: a ≤ 0 et b ≤ 0 ------------------------------------------------------------------------------------
+        if ( a <= 0 && b <= 0)
             println("INIT NEG: a = ", a, " et b = ", b)
 
             a, b = abs(b), abs(a) # transformation en positif
@@ -48,50 +77,121 @@ function approximation_fct_sinus_cardinal(a::Float64, b::Float64)
             println("APRES NEG: a = ", a, " et b = ", b)
         end
         
-        # Cas 5: a ≥ 0 et b ≥ 0 -------------------------------------------------------------------------------------
-
-        # → dans ce cas 5 a, b ≠ 0 et strictement pos 
+        # Cas 5: a ≥ 0 et b ≥ 0 ------------------------------------------------------------------------------------
         
         println("POS: a = ", a, " et b = ", b)
 
-        if (b-a <= 2π)
-            nothing
-        elseif (3π/2 >= a && 3π/2 <= b)
-            min = (sin((3π)/2))/((3π)/2)
-            max = 2 # valeur arbitraire
-            # chercher le max
-            # max = chercher_max(a,b)
+        (b - a > 2π) && (b = a + 2π)
 
-        else
-            b     = a+2π
-            k     = ceil((a-(π/2))/(2π)) 
-            borne = ((1+2k)π)/2
+        ka::Float64 = ceil((a-π)/π)
+        kb::Float64 = ceil((b-π)/π)
+        
+        
 
-            (k%2 ==0) ? println("k paire!") : println("k impaire!")
-            println("b = ", b, "k = ", k, " || borne = ", borne)
+        if ka == kb # a and b are both in the range of 1 extremum
+            extremum::Float64 = newton_method(((1+2ka)π)/2, threshold)
 
-            if (a <= borne && b <= borne) || (a <= borne+(3π/2) && b <= borne+(3π/2) && a >= borne+π && b >= borne+π)
-                max = sin(a)/a
-                min = sin(b)/b
-            
-            elseif (a <= borne+π && b <= borne+π && a >= borne && b >= borne)
-                min = sin(a)/a
-                max = sin(b)/b
+            fa = (a == 0) ? 1 : sin(a)/a # compute f(a)
+            fb = (b == 0) ? 1 : sin(b)/b # compute f(b)
 
+            if a <= extremum <= b # a and b are from both sides of the extremum 
+                println("ka == kb; a <= extremum <= b")
+
+                res_min = (ka%2 == 0) ? min(fa, fb) : sin(extremum)/extremum # if k even then extremum is a maximum, hence min = min(f(a), f(b)). Otherwise min = f(extremum).
+                res_max = (ka%2 == 0) ? sin(extremum)/extremum : max(fa, fb) # if k even then extremum is a maximum, hence max = f(extremum). Otherwise max = max(f(a), f(b)). 
+
+                return res_min, res_max
             else
-                println("En traitement ...")
-                # traitement de l'horreur 
-                # min, max = approximation(a,b)
-                nothing
-            end
+                println("ka == kb; a, b <= extremum OR extremum <= a, b")
 
-             println("min = ", min, " || max = ", max)
+                res_min = min(fb, fa)
+                res_max = max(fb, fa)
+
+                return res_min, res_max
+            end
+        else
+            extremum_ka::Float64 = newton_method(((1+2ka)π)/2, threshold)
+            extremum_kb::Float64 = newton_method(((1+2kb)π)/2, threshold)
+
+            if (a <= extremum_ka <= b <= extremum_kb) && (ka + 1 == kb)
+
+                println("(a <= extremum_ka <= b <= extremum_kb) && (ka + 1 == kb)")
+
+                fa = (a == 0) ? 1 : sin(a)/a # compute f(a)
+                fb = (b == 0) ? 1 : sin(b)/b # compute f(b)
+
+                res_min = (ka%2 == 0) ? fb : sin(extremum_ka)/extremum_ka
+                res_max = (ka%2 == 0) ? sin(extremum_ka)/extremum_ka : fb
+
+                return res_min, res_max
+            elseif (a <= extremum_ka) && (((extremum_kb <= b) && (ka + 1 == kb)) || (ka + 2 == kb))
+
+                println("(a <= extremum_ka) && (((extremum_kb <= b) && (ka + 1 == kb)) || (ka + 2 == kb))")
+
+                (ka + 2 == kb) && (kb -= 1; extremum_kb = newton_method((((1+2kb)π)/2), threshold))
+
+                res_min = (ka%2 == 0) ? sin(extremum_kb)/extremum_kb : sin(extremum_ka)/extremum_ka
+                res_max = (ka%2 == 0) ? sin(extremum_ka)/extremum_ka : sin(extremum_kb)/extremum_kb
+
+                return res_min, res_max
+
+            elseif (extremum_ka <= a <= b <= extremum_kb ) && (ka + 1 == kb) # a and b from different range but no extremum in between
+
+                println("(extremum_ka <= a <= b <= extremum_kb ) && (ka + 1 == kb)")
+
+                fa = (a == 0) ? 1 : sin(a)/a # compute f(a)
+                fb = (b == 0) ? 1 : sin(b)/b # compute f(b)
+
+                res_min = min(fb, fa)
+                res_max = max(fb, fa)
+
+                return res_min, res_max
+
+            elseif (extremum_ka <= a <= extremum_kb <= b) && (ka + 1 == kb)
+
+                println("(extremum_ka <= a <= extremum_kb <= b) && (ka + 1 == kb)")
+
+                fa = (a == 0) ? 1 : sin(a)/a # compute f(a)
+                fb = (b == 0) ? 1 : sin(b)/b # compute f(b)
+
+                res_min = (kb%2 == 0) ? fa : sin(extremum_kb)/extremum_kb
+                res_max = (kb%2 == 0) ? sin(extremum_kb)/extremum_kb : fa
+
+                return res_min, res_max
+
+            elseif (extremum_ka <= a <= b <= extremum_kb) && (ka + 2 == kb)
+
+                println("(extremum_ka <= a <= b <= extremum_kb) && (ka + 2 == kb)")
+
+                fa = (a == 0) ? 1 : sin(a)/a # compute f(a)
+                fb = (b == 0) ? 1 : sin(b)/b # compute f(b)
+
+                kc = ka + 1 # range between ka and kb
+                extremum_kc = newton_method(((1+2kc)π)/2, threshold)
+
+                res_min = (kc%2 == 0) ? min(fa, fb) : sin(extremum_kc)/extremum_kc
+                res_max = (kc%2 == 0) ? sin(extremum_kc)/extremum_kc : max(fa, fb)
+
+                return res_min, res_max
+
+            elseif (extremum_ka <= a <= extremum_kb <= b) && (ka + 2 == kb)
+
+                println("(extremum_ka <= a <= extremum_kb <= b) && (ka + 2 == kb)")
+
+                fa = (a == 0) ? 1 : sin(a)/a # compute f(a)
+                fb = (b == 0) ? 1 : sin(b)/b # compute f(b)
+
+                kc = ka + 1 # range between ka and kb
+                extremum_kc = newton_method(((1+2kc)π)/2, threshold)
+
+                res_min = (kc%2 == 0) ? min(fa, sin(extremum_kb)/extremum_kb) : sin(extremum_kc)/extremum_kc
+                res_max = (kc%2 == 0) ? sin(extremum_kc)/extremum_kc : max(fa, sin(extremum_kb)/extremum_kb)
+
+                return res_min, res_max
+                
+            end
         end
     end
-
-    borneInf, borneSup = min, max #temporaire
-
-    return borneInf, borneSup
 end
 
 
