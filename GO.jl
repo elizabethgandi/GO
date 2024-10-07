@@ -382,20 +382,22 @@ end
 
 function main()
 
+    println("\nLancement du code...\n")
+
     # Affectation des valeurs au bornes x de l'intevalle
-    a::Float64 = 2.0
-    b::Float64 = 0.0
+    a::Float64 = 2.
+    b::Float64 = 1.
 
     borneInf, borneSup = approx_sinc_Newton(a,b)
 
-    println("Methode de Newton:")
+    println("\nMethode de Newton:")
     if (borneInf == -1) && (borneSup == -1)
         println("Impossible")
     else
         println("L'image des bornes [", a, ",", b, "] par la fonction sinus cardinale est l'intevalle [",borneInf, ",", borneSup,"]." )
     end
 
-    println("Methode de Newton interval:")
+    println("\nMethode de Newton interval:")
 
     res = approx_sinc_NewtonInterval(a, b)
 
@@ -404,6 +406,8 @@ function main()
     else
         println("sinc([$a, $b]) = [$(round(res.l, digits=4)), $(round(res.u, digits=4))]")
     end
+
+    println("\n...Fin du code")
 
     return nothing
 end
