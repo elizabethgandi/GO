@@ -1,9 +1,9 @@
 struct tInterval{T}
-    l::T
-    u::T
+    l::Union{T, Nothing}
+    u::Union{T, Nothing}
 end
 
-const verbose = true
+const verbose = false
 
 # ====================< Base operation >====================
 
@@ -27,7 +27,7 @@ end
 
 function Base.:inv(x::tInterval{T}) where T                                                             # [a, b]^-1 = 
     if x.l == x.u == 0                                                                                  # if        a = b = 0       then ∅
-        return nothing                                                                                  # elseif    b < 0           then [b^-1, a^-1]
+        return tInterval(nothing, nothing)                                                              # elseif    b < 0           then [b^-1, a^-1]
     elseif x.u < 0                                                                                      # elseif    0 < a           then [b^-1, a^-1]
         return tInterval((x.l)^-1, (x.u)^-1)                                                            # elseif    a < 0 AND b = 0 then [-∞, a^-1]
     elseif x.l > 0                                                                                      # elseif    a = 0 AND b > 0 then [b^-1, +∞]
@@ -53,7 +53,7 @@ function Base.:^(x::tInterval{T}, p::Int64) where T                             
             elseif x.l > 0                                                                              #  |  endif
                 return tInterval((x.l)^p, (x.u)^p)                                                      # endif
             else
-                return tInterval(0, max(x.l^p, x.u^p))
+                return tInterval(0., max(x.l^p, x.u^p))
             end
         end
     end
@@ -93,11 +93,11 @@ Base.:exp(x::tInterval{T}) where T = tInterval{T}(exp(x.l), exp(x.u))
 
 function Base.:log(x::tInterval{T}) where T
     if x.u <= 0
-        return nothing    
+        return tInterval(nothing, nothing) 
     elseif a > 0
-        return tInterval{T}(log(x.l), log(x.u))
+        return tInterval(log(x.l), log(x.u))
     else
-        return tInterval{T}(-Inf, log(x.u))
+        return tInterval(-Inf, log(x.u))
     end
 end
 
@@ -167,6 +167,3 @@ function sinc_d_2nd(x::tInterval{T}) where T
     verbose && println("Warning sinc_d_2nd(x::tInterval{T}): this method rely on basic interval operators wich tend to provide very pesimistics results")
     return ((2 - x^2) * x * sin(x) - 2 * x^2 * cos(x))/x^4
 end
-
-
-
