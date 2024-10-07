@@ -228,7 +228,7 @@ function approx_sinc_NewtonInterval(a::Float64, b::Float64)::Union{Nothing, tInt
     if a > b
 
         println("a > b")
-        return tInterval(nothing, nothing) # situation not handled ∅
+        return tInterval{typeof(a)}(nothing, nothing) # situation not handled ∅
 
 # Cas 2: a = b ------------------------------------------------------------------------------------
     elseif a == b
@@ -384,7 +384,7 @@ function main()
 
     # Affectation des valeurs au bornes x de l'intevalle
     a::Float64 = 2.0
-    b::Float64 = 17.0
+    b::Float64 = 0.0
 
     borneInf, borneSup = approx_sinc_Newton(a,b)
 
