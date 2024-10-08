@@ -108,7 +108,7 @@ function approx_sinc_Newton(a::Float64, b::Float64)
         kb::Float64 = ceil((b-π)/π)
 
         if ka == kb # a and b are both in the range of 1 extremum
-            extremum::Float64 = newton_method(((1+2ka)π)/2, threshold)
+            extremum::Float64 = (ka==0) ? sinc(a) : newton_method(((1+2ka)π)/2, threshold)
 
             fa = (a == 0) ? 1 : sin(a)/a # compute f(a)
             fb = (b == 0) ? 1 : sin(b)/b # compute f(b)
@@ -129,8 +129,8 @@ function approx_sinc_Newton(a::Float64, b::Float64)
                 return res_min, res_max
             end
         else
-            extremum_ka::Float64 = newton_method(((1+2ka)π)/2, threshold)
-            extremum_kb::Float64 = newton_method(((1+2kb)π)/2, threshold)
+            extremum_ka::Float64 = (ka==0) ? sinc(a) : newton_method(((1+2ka)π)/2, threshold)
+            extremum_kb::Float64 = (kb==0) ? sinc(b) : newton_method(((1+2kb)π)/2, threshold)
 
             if (a <= extremum_ka <= b <= extremum_kb) && (ka + 1 == kb)
 
