@@ -3,6 +3,8 @@ using Printf
 
 include("tInterval.jl")
 
+const verbose = false
+
 # ==============================< Declarations >========================================================
 
 sinc(x::Float64)::Float64 = return (x == 0) ? (1) : (sin(x) / x)
@@ -51,24 +53,24 @@ function approx_sinc_Newton(a::Float64, b::Float64)
     # Case 1: a > b ------------------------------------------------------------------------------------
     if a > b
 
-        println("a > b")
+        verbose && println("a > b")
         return res_min, res_max # -1.0: sentinel value for indicate an impossible case
 
     # Case 2: a = b ------------------------------------------------------------------------------------
     elseif a==b
         if (a==0) && (b==0)
-            println("a == b == 0")
+            verbose && println("a == b == 0")
             return 1., 1.
         end
 
-        println("a == b != 0")
+        verbose && println("a == b != 0")
     
-        res = (a == 0) ? (1) : (sin(a)/a) # res == min == max é
+        res = (a == 0) ? (1) : (sin(a)/a) # res == min == max 
         return res, res
         
     # Case 3: 0 ∈ [a,b] --------------------------------------------------------------------------------
     elseif (a <= 0 <= b)
-        println("a <= 0 <= b")
+        verbose && println("a <= 0 <= b")
 
         res_max = 1
         
@@ -76,7 +78,7 @@ function approx_sinc_Newton(a::Float64, b::Float64)
 
         if min_sinc < abs(a) || min_sinc < b # is a or b further than the first minimum (lowest point of the function)
 
-            println("0 <= y <= b or 0 <= y <= abs(a) | sinc(y) -> lowes point of sinc")
+            verbose && println("0 <= y <= b or 0 <= y <= abs(a) | sinc(y) -> lowes point of sinc")
 
             return sin(min_sinc)/min_sinc, res_max
         else
@@ -90,15 +92,15 @@ function approx_sinc_Newton(a::Float64, b::Float64)
     else
         # Case 4: a ≤ 0 et b ≤ 0 -----------------------------------------------------------------------
         if ( a <= 0 && b <= 0)
-            println("BEG NEG: a = ", a, " et b = ", b)
+            verbose && println("BEFORE NEG: a = ", a, " et b = ", b)
 
-            a, b = abs(b), abs(a) # transformation en positif
+            a, b = abs(b), abs(a) # transformation in positif number
 
-            println("AFTER NEG: a = ", a, " et b = ", b)
+            verbose && println("AFTER NEG: a = ", a, " et b = ", b)
         end
         
         # Case 5: a ≥ 0 et b ≥ 0 -----------------------------------------------------------------------
-        println("POS: a = ", a, " et b = ", b)
+        verbose && println("POS: a = ", a, " et b = ", b)
 
         (b - a > 2π) && (b = a + 2π)
 
@@ -114,14 +116,14 @@ function approx_sinc_Newton(a::Float64, b::Float64)
             fb = (b == 0) ? 1 : sin(b)/b # compute f(b)
 
             if a <= extremum <= b # a and b are from both sides of the extremum 
-                println("ka == kb; a <= extremum <= b")
+                verbose && println("ka == kb; a <= extremum <= b")
 
                 res_min = (ka%2 == 0) ? min(fa, fb) : sin(extremum)/extremum # if k even then extremum is a maximum, hence min = min(f(a), f(b)). Otherwise min = f(extremum).
                 res_max = (ka%2 == 0) ? sin(extremum)/extremum : max(fa, fb) # if k even then extremum is a maximum, hence max = f(extremum). Otherwise max = max(f(a), f(b)). 
 
                 return res_min, res_max
             else
-                println("ka == kb; a, b <= extremum OR extremum <= a, b")
+                verbose && println("ka == kb; a, b <= extremum OR extremum <= a, b")
 
                 res_min = min(fb, fa)
                 res_max = max(fb, fa)
@@ -134,7 +136,7 @@ function approx_sinc_Newton(a::Float64, b::Float64)
 
             if (a <= extremum_ka <= b <= extremum_kb) && (ka + 1 == kb)
 
-                println("(a <= extremum_ka <= b <= extremum_kb) && (ka + 1 == kb)")
+                verbose && println("(a <= extremum_ka <= b <= extremum_kb) && (ka + 1 == kb)")
 
                 fa = (a == 0) ? 1 : sin(a)/a # compute f(a)
                 fb = (b == 0) ? 1 : sin(b)/b # compute f(b)
@@ -146,7 +148,7 @@ function approx_sinc_Newton(a::Float64, b::Float64)
 
             elseif (a <= extremum_ka) && (((extremum_kb <= b) && (ka + 1 == kb)) || (ka + 2 == kb))
 
-                println("(a <= extremum_ka) && (((extremum_kb <= b) && (ka + 1 == kb)) || (ka + 2 == kb))")
+                verbose && println("(a <= extremum_ka) && (((extremum_kb <= b) && (ka + 1 == kb)) || (ka + 2 == kb))")
 
                 (ka + 2 == kb) && (kb -= 1; extremum_kb = newton_method((((1+2kb)π)/2), threshold))
 
@@ -159,7 +161,7 @@ function approx_sinc_Newton(a::Float64, b::Float64)
 
             elseif (extremum_ka <= a <= b <= extremum_kb ) && (ka + 1 == kb) # a and b from different range but no extremum in between
 
-                println("(extremum_ka <= a <= b <= extremum_kb ) && (ka + 1 == kb)")
+                verbose && println("(extremum_ka <= a <= b <= extremum_kb ) && (ka + 1 == kb)")
 
                 fa = (a == 0) ? 1 : sin(a)/a # compute f(a)
                 fb = (b == 0) ? 1 : sin(b)/b # compute f(b)
@@ -171,7 +173,7 @@ function approx_sinc_Newton(a::Float64, b::Float64)
 
             elseif (extremum_ka <= a <= extremum_kb <= b) && (ka + 1 == kb)
 
-                println("(extremum_ka <= a <= extremum_kb <= b) && (ka + 1 == kb)")
+                verbose && println("(extremum_ka <= a <= extremum_kb <= b) && (ka + 1 == kb)")
 
                 fa = (a == 0) ? 1 : sin(a)/a # compute f(a)
                 fb = (b == 0) ? 1 : sin(b)/b # compute f(b)
@@ -183,7 +185,7 @@ function approx_sinc_Newton(a::Float64, b::Float64)
 
             elseif (extremum_ka <= a <= b <= extremum_kb) && (ka + 2 == kb)
 
-                println("(extremum_ka <= a <= b <= extremum_kb) && (ka + 2 == kb)")
+                verbose && println("(extremum_ka <= a <= b <= extremum_kb) && (ka + 2 == kb)")
 
                 fa = (a == 0) ? 1 : sin(a)/a # compute f(a)
                 fb = (b == 0) ? 1 : sin(b)/b # compute f(b)
@@ -198,7 +200,7 @@ function approx_sinc_Newton(a::Float64, b::Float64)
 
             elseif (extremum_ka <= a <= extremum_kb <= b) && (ka + 2 == kb)
 
-                println("(extremum_ka <= a <= extremum_kb <= b) && (ka + 2 == kb)")
+                verbose && println("(extremum_ka <= a <= extremum_kb <= b) && (ka + 2 == kb)")
 
                 fa = (a == 0) ? 1 : sin(a)/a # compute f(a)
                 fb = (b == 0) ? 1 : sin(b)/b # compute f(b)
@@ -226,22 +228,22 @@ function approx_sinc_NewtonInterval(a::Float64, b::Float64)::Union{Nothing, tInt
     # Case 1: a > b ------------------------------------------------------------------------------------
     if a > b
 
-        println("a > b")
+        verbose && println("a > b")
         return tInterval{typeof(a)}(nothing, nothing) # situation not handled ∅
 
     # Case 2: a = b ------------------------------------------------------------------------------------
     elseif a == b
         if (a==0) && (b==0)
-            println("a == b == 0")
+            verbose && println("a == b == 0")
             return tInterval(1., 1.) # 1. == min == max
         else
-            println("a == b != 0")
+            verbose && println("a == b != 0")
             tmp = (a == 0) ? (1) : (sin(a)/a) # tmp == min == max
             return tInterval(tmp, tmp)
         end
     # Case 3: 0 ∈ [a,b] --------------------------------------------------------------------------------
     elseif (a <= 0 <= b)
-        println("a <= 0 <= b")
+        verbose && println("a <= 0 <= b")
 
         res_max = 1
         
@@ -251,7 +253,7 @@ function approx_sinc_NewtonInterval(a::Float64, b::Float64)::Union{Nothing, tInt
         if sinc_minimum.l ≤ abs(a) || sinc_minimum.l ≤ b
             # set the extremum as lowest image of [a, b]
 
-            println("0 < y ≤ b or 0 < y ≤ |a| | sinc(y) -> lowest point of sinc. \nThus y belong in [a, b] and is the lowest image of [a, b]")
+            verbose && println("0 < y ≤ b or 0 < y ≤ |a| | sinc(y) -> lowest point of sinc. \nThus y belong in [a, b] and is the lowest image of [a, b]")
 
             res_min = min(sinc(sinc_minimum.l), sinc(sinc_minimum.u))
 
@@ -259,7 +261,7 @@ function approx_sinc_NewtonInterval(a::Float64, b::Float64)::Union{Nothing, tInt
         else
             # extremum don't belong in [a, b]
             
-            println("0 ≤ b < y and 0 ≤ |a| < y | sinc(y) -> lowest point of sinc. \nThus y don't belong in [a, b] and therfore the lowest image of [a, b] is min(sinc(a), sinc(b))")
+            verbose && println("0 ≤ b < y and 0 ≤ |a| < y | sinc(y) -> lowest point of sinc. \nThus y don't belong in [a, b] and therfore the lowest image of [a, b] is min(sinc(a), sinc(b))")
 
             res_min = min(sinc(a), sinc(b))
             
@@ -268,7 +270,7 @@ function approx_sinc_NewtonInterval(a::Float64, b::Float64)::Union{Nothing, tInt
     else
         # Case 4: a < b ≤ 0 ----------------------------------------------------------------------------
         if ( a < b ≤ 0)
-            println("a < b ≤ 0: \nReturning to a strictly positive situation → a = $a et b = $b become a = $(-b) et b = $(-a)")
+            verbose && println("a < b ≤ 0: \nReturning to a strictly positive situation → a = $a et b = $b become a = $(-b) et b = $(-a)")
 
             a, b = abs(b), abs(a) # return to a strictly positive situation
         end
@@ -289,12 +291,12 @@ function approx_sinc_NewtonInterval(a::Float64, b::Float64)::Union{Nothing, tInt
             fb = sinc(b) # compute f(b)
 
             if a ≤ extremum.l ≤ extremum.u ≤ b # a and b are from both sides of the extremum 
-                println("ka == kb; a <= extremum <= b")
+                verbose && println("ka == kb; a <= extremum <= b")
                 tmp = (fa, fb, sinc(extremum.l), sinc(extremum.u))
 
                 return tInterval(minimum(tmp), maximum(tmp))
             else
-                println("ka == kb; a, b <= extremum OR extremum <= a, b")
+                verbose && println("ka == kb; a, b <= extremum OR extremum <= a, b")
 
                 return tInterval(min(fb, fa), max(fb, fa))
             end
@@ -302,32 +304,32 @@ function approx_sinc_NewtonInterval(a::Float64, b::Float64)::Union{Nothing, tInt
             extremum_ka::tInterval{Float64} = (ka == 0) ? tInterval(sinc(a), sinc(a)) : NewtonInterval(tInterval(((1+2ka)π)/2 - 0.3, ((1+2ka)π)/2))
             extremum_kb::tInterval{Float64} = (kb == 0) ? tInterval(sinc(b), sinc(b)) : NewtonInterval(tInterval(((1+2kb)π)/2 - 0.3, ((1+2kb)π)/2))
 
-            println("ka = $(extremum_ka), kb = $(extremum_kb), a = $a, b = $b, ka = $ka, kb = $kb")
+            verbose && println("ka = $(extremum_ka), kb = $(extremum_kb), a = $a, b = $b, ka = $ka, kb = $kb")
 
             if (ka + 1 == kb)
                 if (a ≤ extremum_ka.l && b ≤ extremum_kb.l)  # ane  ^   | b ^   |   ^ 
-                    println("(a ≤ extremum_ka.l ≤ b ≤ extremum_kb.l) && (ka + 1 == kb)")
+                    verbose && println("(a ≤ extremum_ka.l ≤ b ≤ extremum_kb.l) && (ka + 1 == kb)")
 
                     tmp = (sinc(a), sinc(b), sinc(extremum_ka.l), sinc(extremum_ka.u))
 
                     return tInterval(minimum(tmp), maximum(tmp))
 
                 elseif (a ≤ extremum_ka.l ≤ extremum_kb.u ≤ b) # a ^   |   ^ b |   ^ 
-                    println("(a <= extremum_ka) && (((extremum_kb <= b) && (ka + 1 == kb)) || (ka + 2 == kb))")
+                    verbose && println("(a <= extremum_ka) && (((extremum_kb <= b) && (ka + 1 == kb)) || (ka + 2 == kb))")
 
                     tmp = (sinc(a), sinc(b), sinc(extremum_ka.l), sinc(extremum_ka.u), sinc(extremum_kb.l), sinc(extremum_kb.u))
 
                     return tInterval(minimum(tmp), maximum(tmp))
 
                 elseif (extremum_ka.u ≤ a ≤ b ≤ extremum_kb.l ) #   ^ a | b ^   |   ^ 
-                    println("(extremum_ka <= a <= b <= extremum_kb ) && (ka + 1 == kb)")
+                    verbose && println("(extremum_ka <= a <= b <= extremum_kb ) && (ka + 1 == kb)")
 
                     tmp = (sinc(a), sinc(b))
 
                     return tInterval(minimum(tmp), maximum(tmp))
 
                 elseif (extremum_ka.u ≤ a ≤ extremum_kb.u ≤ b) #   ^ a |   ^ b |   ^ 
-                    println("(extremum_ka <= a <= extremum_kb <= b) && (ka + 1 == kb)")
+                    verbose && println("(extremum_ka <= a <= extremum_kb <= b) && (ka + 1 == kb)")
 
                     tmp = (sinc(a), sinc(b), sinc(extremum_kb.l), sinc(extremum_kb.u))
 
@@ -339,28 +341,28 @@ function approx_sinc_NewtonInterval(a::Float64, b::Float64)::Union{Nothing, tInt
                 extremum_kc::tInterval{Float64} = NewtonInterval(tInterval(((1+2kc)π)/2 - 0.3, ((1+2kc)π)/2))
 
                 if (a ≤ extremum_ka.l ≤ b ≤ extremum_kb.l) # a ^   |   ^   | b ^ 
-                    println("(a ≤ extremum_ka.l ≤ b ≤ extremum_kb.l) && (ka + 2 == kb)")
+                    verbose && println("(a ≤ extremum_ka.l ≤ b ≤ extremum_kb.l) && (ka + 2 == kb)")
 
                     tmp = (sinc(a), sinc(b), sinc(extremum_ka.l), sinc(extremum_ka.u), sinc(extremum_kc.l), sinc(extremum_kc.u))
 
                     return tInterval(minimum(tmp), maximum(tmp))
 
                 elseif (a ≤ extremum_ka.l ≤ b ≤ extremum_kb.l) # a ^   |   ^   |   ^ b
-                    println("(a ≤ extremum_ka.l ≤ b ≤ extremum_kb.l) && (ka + 2 == kb)")
+                    verbose && println("(a ≤ extremum_ka.l ≤ b ≤ extremum_kb.l) && (ka + 2 == kb)")
 
                     tmp = (sinc(a), sinc(b), sinc(extremum_ka.l), sinc(extremum_ka.u), sinc(extremum_kc.l), sinc(extremum_kc.u))
 
                     return tInterval(minimum(tmp), maximum(tmp))
 
                 elseif (extremum_ka.u ≤ a ≤ b ≤ extremum_kb.l) #   ^ a |   ^   | b ^ 
-                    println("(extremum_ka.u ≤ a ≤ b ≤ extremum_kb.l) && (ka + 2 == kb)")
+                    verbose && println("(extremum_ka.u ≤ a ≤ b ≤ extremum_kb.l) && (ka + 2 == kb)")
 
                     tmp = (sinc(a), sinc(b), sinc(extremum_kc.l), sinc(extremum_kc.u))
 
                     return tInterval(minimum(tmp), maximum(tmp))
 
                 elseif (extremum_ka.u ≤ a ≤ extremum_kb.u ≤ b) #   ^ a |   ^   |   ^ b
-                    println("(extremum_ka.u ≤ a ≤ extremum_kb.u ≤ b) && (ka + 2 == kb)")
+                    verbose && println("(extremum_ka.u ≤ a ≤ extremum_kb.u ≤ b) && (ka + 2 == kb)")
 
                     tmp = (sinc(a), sinc(b), sinc(extremum_kb.l), sinc(extremum_kb.u), sinc(extremum_kc.l), sinc(extremum_kc.u))
 
@@ -378,11 +380,11 @@ end
 
 function main()
 
-    println("\nLaunch of the code...\n")
+    println("\nLaunch of the code...")
 
     # Assignment of values ​​to the x terminal of the interval
-    a::Float64 = 2.0
-    b::Float64 = -7.0
+    a::Float64 = 0.0
+    b::Float64 = 7.0
 
     borneInf, borneSup = approx_sinc_Newton(a,b)
 

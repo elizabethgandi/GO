@@ -3,7 +3,7 @@ struct tInterval{T}
     u::Union{T, Nothing}
 end
 
-const verbose = false
+const verbose_details = false
 
 # ====================< Base operation >==========================
 
@@ -154,16 +154,16 @@ function Base.:sin(x::tInterval{T}) where T
 end
 
 function sinc(x::tInterval{T}) where T
-    verbose && println("Warning sinc(x::tInterval{T}): this method rely on basic interval operators wich tend to provide very pesimistics results")
+    verbose_details && println("Warning sinc(x::tInterval{T}): this method rely on basic interval operators wich tend to provide very pesimistics results")
     return sin(x)/x
 end
 
 function sinc_d_1st(x::tInterval{T}) where T
-    verbose && println("Warning sinc_d_1st(x::tInterval{T}): this method rely on basic interval operators wich tend to provide very pesimistics results")
+    verbose_details && println("Warning sinc_d_1st(x::tInterval{T}): this method rely on basic interval operators wich tend to provide very pesimistics results")
     return (x * cos(x) - sin(x)) / x^2
 end
 
 function sinc_d_2nd(x::tInterval{T}) where T
-    verbose && println("Warning sinc_d_2nd(x::tInterval{T}): this method rely on basic interval operators wich tend to provide very pesimistics results")
+    verbose_details && println("Warning sinc_d_2nd(x::tInterval{T}): this method rely on basic interval operators wich tend to provide very pesimistics results")
     return ((2 - x^2) * x * sin(x) - 2 * x^2 * cos(x))/x^4
 end
