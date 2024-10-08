@@ -385,8 +385,8 @@ function main()
     println("\nLancement du code...\n")
 
     # Affectation des valeurs au bornes x de l'intevalle
-    a::Float64 = 2.
-    b::Float64 = 1.
+    a::Float64 = -20000000000.
+    b::Float64 = 0.000001
 
     borneInf, borneSup = approx_sinc_Newton(a,b)
 
