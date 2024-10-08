@@ -106,8 +106,6 @@ function approx_sinc_Newton(a::Float64, b::Float64)
 
         ka::Float64 = ceil((a-π)/π)
         kb::Float64 = ceil((b-π)/π)
-        
-        
 
         if ka == kb # a and b are both in the range of 1 extremum
             extremum::Float64 = newton_method(((1+2ka)π)/2, threshold)
@@ -222,8 +220,6 @@ function approx_sinc_NewtonInterval(a::Float64, b::Float64)::Union{Nothing, tInt
 
     res_min::Float64 = -1.0
     res_max::Float64 = -1.0
-
-    threshold::Float64 = 0.0000000000001 # accuracy
     
     # Case 1: a > b ------------------------------------------------------------------------------------
     if a > b
@@ -383,8 +379,8 @@ function main()
     println("\nLaunch of the code...")
 
     # Assignment of values ​​to the x terminal of the interval
-    a::Float64 = 0.0
-    b::Float64 = 7.0
+    a::Float64 = 1.2
+    b::Float64 = 4.001
 
     borneInf, borneSup = approx_sinc_Newton(a,b)
 
