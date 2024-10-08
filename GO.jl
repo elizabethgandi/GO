@@ -1,6 +1,4 @@
 # ==============================< PACKAGES >============================================================
-using Printf
-
 include("tInterval.jl")
 
 const verbose = false
@@ -379,8 +377,8 @@ function main()
     println("\nLaunch of the code...")
 
     # Assignment of values ​​to the x terminal of the interval
-    a::Float64 = 1.2
-    b::Float64 = 4.001
+    a::Float64 = 10.8
+    b::Float64 = 11.2
 
     borneInf, borneSup = approx_sinc_Newton(a,b)
 
@@ -398,7 +396,7 @@ function main()
     if res.l == nothing || res.u == nothing
         println("Not possible")
     else
-        println("sinc([$a, $b]) = [$(round(res.l, digits=4)), $(round(res.u, digits=4))]")
+        println("sinc([$a, $b]) = [$(res.l), $(res.u)]" )
     end
 
     println("\n...End of the code")
