@@ -1,13 +1,15 @@
-# ========================================== PACKAGES ===============================================================
+# ==============================< PACKAGES >============================================================
 using Printf
 
 include("tInterval.jl")
+
+# ==============================< Declarations >========================================================
 
 sinc(x::Float64)::Float64 = return (x == 0) ? (1) : (sin(x) / x)
 sinc_d_1st(x::Float64)::Float64 = return (x == 0) ? (0) : ((x * cos(x) - sin(x)) / (x^2))
 sinc_d_2nd(x::Float64)::Float64 = return (x == 0) ? (-0.33333333315479) : (((x^2 - 2) * -x * sin(x) - 2 * x^2 * cos(x)) / (x^4))
 
-# ==============================< Newton >==============================
+# ==============================< Newton >==============================================================
 
 N(x::Float64)::Float64 = return (x - (sinc_d_1st(x) / sinc_d_2nd(x))) 
 
@@ -22,7 +24,7 @@ function newton_method(x::Float64, threshold::Float64 = 0.0000000000001)::Float6
     return x
 end
 
-# ==============================< Newton Interval >==============================
+# ==============================< Newton Interval >=====================================================
 
 N(f::Function, df::Function, x::tInterval{Float64}, c::Float64 = m(x)) = return c - f(c)/df(x)
 
@@ -38,7 +40,7 @@ function NewtonInterval(x::tInterval, max_iter::Int64 = 1000, τ::Float64 = 10^-
     return x
 end
 
-# ========================================== FONCTIONS ==============================================================
+# ==============================< FUNCTIONS >===========================================================
 function approx_sinc_Newton(a::Float64, b::Float64)
 
     res_min::Float64 = -1.0
@@ -46,13 +48,13 @@ function approx_sinc_Newton(a::Float64, b::Float64)
 
     threshold::Float64 = 0.0000000000001 # accuracy
     
-    # Cas 1: a > b ------------------------------------------------------------------------------------
+    # Case 1: a > b ------------------------------------------------------------------------------------
     if a > b
 
         println("a > b")
-        return res_min, res_max # -1.0 pour l'instant est une valeur sentinelle pour indiquer impossible 
+        return res_min, res_max # -1.0: sentinel value for indicate an impossible case
 
-    # Cas 2: a = b ------------------------------------------------------------------------------------
+    # Case 2: a = b ------------------------------------------------------------------------------------
     elseif a==b
         if (a==0) && (b==0)
             println("a == b == 0")
@@ -64,13 +66,11 @@ function approx_sinc_Newton(a::Float64, b::Float64)
         res = (a == 0) ? (1) : (sin(a)/a) # res == min == max é
         return res, res
         
-    # Cas 3: 0 ∈ [a,b] ------------------------------------------------------------------------------------
+    # Case 3: 0 ∈ [a,b] --------------------------------------------------------------------------------
     elseif (a <= 0 <= b)
         println("a <= 0 <= b")
 
         res_max = 1
-
-        # chercher le min
         
         min_sinc = newton_method(3π/2, threshold) # lowest point of sinc (first minimum ~ 3π/2 -> use newton method starting at x = 3π/2)
 
@@ -88,17 +88,16 @@ function approx_sinc_Newton(a::Float64, b::Float64)
             return res_min, res_max
         end
     else
-        # Cas 4: a ≤ 0 et b ≤ 0 ------------------------------------------------------------------------------------
+        # Case 4: a ≤ 0 et b ≤ 0 -----------------------------------------------------------------------
         if ( a <= 0 && b <= 0)
-            println("INIT NEG: a = ", a, " et b = ", b)
+            println("BEG NEG: a = ", a, " et b = ", b)
 
             a, b = abs(b), abs(a) # transformation en positif
 
-            println("APRES NEG: a = ", a, " et b = ", b)
+            println("AFTER NEG: a = ", a, " et b = ", b)
         end
         
-        # Cas 5: a ≥ 0 et b ≥ 0 ------------------------------------------------------------------------------------
-        
+        # Case 5: a ≥ 0 et b ≥ 0 -----------------------------------------------------------------------
         println("POS: a = ", a, " et b = ", b)
 
         (b - a > 2π) && (b = a + 2π)
@@ -224,13 +223,13 @@ function approx_sinc_NewtonInterval(a::Float64, b::Float64)::Union{Nothing, tInt
 
     threshold::Float64 = 0.0000000000001 # accuracy
     
-# Cas 1: a > b ------------------------------------------------------------------------------------
+    # Case 1: a > b ------------------------------------------------------------------------------------
     if a > b
 
         println("a > b")
         return tInterval{typeof(a)}(nothing, nothing) # situation not handled ∅
 
-# Cas 2: a = b ------------------------------------------------------------------------------------
+    # Case 2: a = b ------------------------------------------------------------------------------------
     elseif a == b
         if (a==0) && (b==0)
             println("a == b == 0")
@@ -240,7 +239,7 @@ function approx_sinc_NewtonInterval(a::Float64, b::Float64)::Union{Nothing, tInt
             tmp = (a == 0) ? (1) : (sin(a)/a) # tmp == min == max
             return tInterval(tmp, tmp)
         end
-# Cas 3: 0 ∈ [a,b] ------------------------------------------------------------------------------------
+    # Case 3: 0 ∈ [a,b] --------------------------------------------------------------------------------
     elseif (a <= 0 <= b)
         println("a <= 0 <= b")
 
@@ -267,17 +266,14 @@ function approx_sinc_NewtonInterval(a::Float64, b::Float64)::Union{Nothing, tInt
             return tInterval(res_min, res_max)
         end
     else
-# Cas 4: a < b ≤ 0 ------------------------------------------------------------------------------------
+        # Case 4: a < b ≤ 0 ----------------------------------------------------------------------------
         if ( a < b ≤ 0)
             println("a < b ≤ 0: \nReturning to a strictly positive situation → a = $a et b = $b become a = $(-b) et b = $(-a)")
 
             a, b = abs(b), abs(a) # return to a strictly positive situation
         end
         
-# Cas 5: a ≥ 0 et b ≥ 0 ------------------------------------------------------------------------------------
-        
-        # println("POS: a = ", a, " et b = ", b)
-
+        # Case 5: a ≥ 0 et b ≥ 0 -----------------------------------------------------------------------
         if (b - a > 2π + 0.5)
             # println("w([a, b]) > 2π + 0.5: \nBecause the variation of sinc only decrease as x∈[a, b] grow larger and the maximum distance between two extremum of sinc is smaller than 2π+0.5, the upper bound b could be set to b := a + 2π + 0.5")
             b = a + 2π + 0.5
@@ -378,7 +374,7 @@ end
 
 
 
-# ============================================== MAIN()==============================================================
+# ==============================< MAIN >================================================================
 
 function main()
 

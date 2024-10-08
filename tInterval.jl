@@ -5,7 +5,7 @@ end
 
 const verbose = false
 
-# ====================< Base operation >====================
+# ====================< Base operation >==========================
 
 Base.:+(x::tInterval{T}, v::U) where {T, U}             = return tInterval{T}(x.l + v, x.u + v)         # [a, b] + c = [a + c, b + c]
 Base.:+(v::U, x::tInterval{T}) where {T, U}             = return x + v                                  # c + [a, b] = [a + c, b + c]
@@ -67,13 +67,13 @@ function Base.:/(x::tInterval{T}, v::U) where {T, U}                            
     return tInterval(minimum(tmp), maximum(tmp))
 end
 
-# ====================< Operation >====================
+# ====================< Operation >===============================
 
 w(x::tInterval{T}) where T = x.u - x.l
 m(x::tInterval{T}) where T = (x.u + x.l)/2
 r(x::tInterval{T}) where T = (x.u - x.l)/2
 
-# ====================< Set operation >===================='
+# ====================< Set operation >===========================
 
 ∈(c::U, x::tInterval{T}) where {U, T} = x.l <= c <= x.u
 ∉(c::U, x::tInterval{T}) where {U, T} = !c∈x
@@ -83,7 +83,7 @@ Base.:!=(x::tInterval{T}, y::tInterval{T}) where T = (x.l != y.l) || (x.u != y.u
 ⊂(x::tInterval{T}, y::tInterval{T}) where T = y.l < x.l < x.u < y.u
 ∩(x::tInterval{T}, y::tInterval{T}) where T = tInterval{T}(max(x.l, y.l), min(x.u, y.u))
 
-# ====================< Hausdorff distance >====================
+# ====================< Hausdorff distance >======================
 
 d(x::tInterval{T}, y::tInterval{T}) where T = max(abs(x.l - y.l), abs(x.u - y.u))
 
