@@ -2,6 +2,7 @@
 include("tInterval.jl")
 
 const verbose = false
+const accuracy = 10^-15
 
 # ==============================< Declarations >========================================================
 
@@ -13,7 +14,7 @@ sinc_d_2nd(x::Float64)::Float64 = return (x == 0) ? (-0.33333333315479) : (((x^2
 
 N(x::Float64)::Float64 = return (x - (sinc_d_1st(x) / sinc_d_2nd(x))) 
 
-function newton_method(x::Float64, threshold::Float64 = 0.0000000000001)::Float64
+function newton_method(x::Float64, threshold::Float64 = accuracy)::Float64
     tmp ::Union{Float64, Nothing}   = x-1       # xk-1
 
     while !(tmp <= x <= tmp + threshold)
@@ -28,9 +29,9 @@ end
 
 N(f::Function, df::Function, x::tInterval{Float64}, c::Float64 = m(x)) = return c - f(c)/df(x)
 
-θ(x::tInterval{Float64}, δ::Float64 = 1.1, λ::Float64 = 10^-12) = m(x) + δ * (x - m(x)) + λ * tInterval(-1, 1)
+θ(x::tInterval{Float64}, δ::Float64 = 1.1, λ::Float64 = accuracy) = m(x) + δ * (x - m(x)) + λ * tInterval(-1, 1)
 
-function NewtonInterval(x::tInterval, max_iter::Int64 = 1000, τ::Float64 = 10^-8)
+function NewtonInterval(x::tInterval, max_iter::Int64 = 1000, τ::Float64 = accuracy)
     i::Int64 = 0
     while (i < max_iter) && (w(x) >= τ)
         x = N(sinc_d_1st, sinc_d_2nd, θ(x))
@@ -46,7 +47,7 @@ function approx_sinc_Newton(a::Float64, b::Float64)
     res_min::Float64 = -1.0
     res_max::Float64 = -1.0
 
-    threshold::Float64 = 0.0000000000001 # accuracy
+    threshold::Float64 = accuracy # accuracy
     
     # Case 1: a > b ------------------------------------------------------------------------------------
     if a > b
@@ -372,13 +373,9 @@ end
 
 # ==============================< MAIN >================================================================
 
-function main()
+function main(a::Float64 = 0.00000001, b::Float64 = 0.0000001)
 
     println("\nLaunch of the code...")
-
-    # Assignment of values ​​to the x terminal of the interval
-    a::Float64 = 10.8
-    b::Float64 = 11.2
 
     borneInf, borneSup = approx_sinc_Newton(a,b)
 
@@ -386,7 +383,7 @@ function main()
     if (borneInf == -1) && (borneSup == -1)
         println("Not possible")
     else
-        println("sinc([", a, ",", b, "]) = [",borneInf, ",", borneSup,"]" )
+        println("sinc([$a, $b]) = [$borneInf, $borneSup]" )
     end
 
     println("\nInterval Newton method:")
@@ -396,10 +393,17 @@ function main()
     if res.l == nothing || res.u == nothing
         println("Not possible")
     else
-        println("sinc([$a, $b]) = [$(res.l), $(res.u)]" )
+        println("sinc([$a, $b]) = [$(res.l), $(res.u)]")
     end
 
     println("\n...End of the code")
 
     return nothing
+end
+
+begin
+    a::Float64 = 10.8
+    b::Float64 = 11.2
+    
+    main(a, b)
 end
