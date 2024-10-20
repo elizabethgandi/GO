@@ -272,7 +272,6 @@ function approx_sinc_NewtonInterval(a::Float64, b::Float64)::Union{Nothing, tInt
         
         # Case 5: a ≥ 0 et b ≥ 0 -----------------------------------------------------------------------
         if (b - a > 2π + 0.5)
-            # println("w([a, b]) > 2π + 0.5: \nBecause the variation of sinc only decrease as x∈[a, b] grow larger and the maximum distance between two extremum of sinc is smaller than 2π+0.5, the upper bound b could be set to b := a + 2π + 0.5")
             b = a + 2π + 0.5
         end
 
@@ -402,7 +401,7 @@ function main(a::Float64 = 0.00000001, b::Float64 = 0.0000001)
 end
 
 begin
-    a::Float64 = 10.8
+    a::Float64 = 0.8
     b::Float64 = 11.2
     
     main(a, b)
