@@ -77,8 +77,8 @@ r(x::tInterval{T}) where T = (x.u - x.l)/2
 
 ∈(c::U, x::tInterval{T}) where {U, T} = x.l <= c <= x.u
 ∉(c::U, x::tInterval{T}) where {U, T} = !c∈x
-Base.:==(x::tInterval{T}, y::tInterval{T}) where T = (x.l == y.l) && (x.u == y.u)
-#Base.:!=(x::tInterval{T}, y::tInterval{T}) where T = (x.l != y.l) || (x.u != y.u)
+#Base.:==(x::tInterval{T}, y::tInterval{T}) where T = (x.l == y.l) && (x.u == y.u)
+Base.:!=(x::tInterval{T}, y::tInterval{T}) where T = (x.l != y.l) || (x.u != y.u)
 ⊆(x::tInterval{T}, y::tInterval{T}) where T = y.l <= x.l <= x.u <= y.u
 ⊂(x::tInterval{T}, y::tInterval{T}) where T = y.l < x.l < x.u < y.u
 ∩(x::tInterval{T}, y::tInterval{T}) where T = tInterval{T}(max(x.l, y.l), min(x.u, y.u))
